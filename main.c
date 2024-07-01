@@ -4,12 +4,16 @@ typedef struct Player
 {
     Vector2 pos;
     Vector2 size;
+    Vector2 target;
+    bool should_move;
 } Player;
 
 Player InitPlayer() {
     Player player = {0};
     player.pos = (Vector2){200, 200};
     player.size = (Vector2){20, 20};
+    player.target = (Vector2){0, 0};
+    player.should_move = false;
 
     return player;
 }
@@ -22,25 +26,26 @@ void UpdatePlayer(Player *p) {
     // Get mouse position on right click
     if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
         Vector2 mouse_pos = GetMousePosition();
-
+        p->target = mouse_pos;
+        p->should_move = true;
         printf("mouse_x: %f\nmouse_y: %f\n", mouse_pos.x, mouse_pos.y);
     }
-    // if player x/y != mouse pos go to mouse
-    // set abilities to qwer keys
 
-
-    if(IsKeyDown(KEY_W)) {
-        p->pos.y -= 5;
-    }
-    if(IsKeyDown(KEY_S)) {
-        p->pos.y += 5;
-    }
-    if(IsKeyDown(KEY_D)) {
+    // Very basic move to click
+    if(p->should_move && p->pos.x < p->target.x) {
         p->pos.x += 5;
     }
-    if(IsKeyDown(KEY_A)) {
+    if(p->should_move && p->pos.x > p->target.x) {
         p->pos.x -= 5;
     }
+    if(p->should_move && p->pos.y < p->target.y) {
+        p->pos.y += 5;
+    }
+    if(p->should_move && p->pos.y > p->target.y) {
+        p->pos.y -= 5;
+    }
+
+    // set abilities to qwer keys
 }
 
 int main(){
