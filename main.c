@@ -7,6 +7,10 @@
 bool reached = false;
 bool throw_hook = false;
 bool going_back = false;
+
+Vector2 initial;
+Rectangle old_pos;
+
 float range = 500;
 
 typedef struct Hook
@@ -55,7 +59,8 @@ void DrawPlayer(Player *p) {
 }
 
 void UpdateHook(Player *p) {
-    Vector2 start = p->pos; 
+    // Vector2 start = p->pos; 
+    Vector2 start = initial;
     Vector2 end = p->hook_loc;
     Vector2 direction = Vector2Normalize(Vector2Subtract(start, end));
     Vector2 dir_to_player = Vector2Normalize(Vector2Subtract(end, start));
@@ -73,9 +78,10 @@ void UpdateHook(Player *p) {
 
     if(going_back){
         p->hook.pos = Vector2Add(p->hook.pos, Vector2Negate(dir_to_player));
-        if(CheckCollisionRecs(p->hook.coll, p->coll)) {
+        if(CheckCollisionRecs(p->hook.coll, old_pos)) {
             throw_hook = false;
             going_back = false;
+            reached = false;
         }
     }
     
@@ -97,13 +103,23 @@ void UpdatePlayer(Player *p) {
 
     }
     
-    if(IsKeyPressed(KEY_Q)){
+    if(IsKeyPressed(KEY_Q) && !throw_hook){
         Vector2 mouse_pos = GetMousePosition();
         p->hook_loc = mouse_pos;
         p->hook.pos = p->pos;
         p->hook_target.x = p->hook_loc.x;
         p->hook_target.y = p->hook_loc.y;
 
+        initial = p->pos;
+
+        Rectangle old_pos_coll = {
+            .height=20,
+            .width=20,
+            .x=p->pos.x,
+            .y=p->pos.y
+        };
+
+        old_pos = old_pos_coll;
         // spawn hook collider
         p->hook.coll.x = p->hook.pos.x;
         p->hook.coll.y = p->hook.pos.y;
