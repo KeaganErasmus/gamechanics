@@ -1,7 +1,9 @@
 {
     "files.associations": {
         "stdint.h": "c",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "limits": "c",
+        "typeinfo": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
