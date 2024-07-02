@@ -52,6 +52,7 @@ Player InitPlayer() {
 
 void DrawHook(Player *p) {
     DrawRectangleV(p->hook.pos, (Vector2){5, 5}, BLACK);
+    DrawLine(initial.x, initial.y+10, p->hook.pos.x, p->hook.pos.y, RED);
 }
 
 void DrawPlayer(Player *p) {
