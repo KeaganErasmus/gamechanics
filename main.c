@@ -4,6 +4,8 @@
 
 #include "utils.c"
 
+#define MAX_OBJECTS 5
+
 bool reached = false;
 bool throw_hook = false;
 bool going_back = false;
@@ -12,6 +14,29 @@ Vector2 initial;
 Rectangle old_pos;
 
 float range = 500;
+
+typedef struct Object
+{
+    Rectangle coll;
+    Vector2 pos;
+    bool hooked;
+} Object;
+
+Object CreateObject() {
+    Object obj = {0};
+    obj.pos=(Vector2){50, 50};
+    obj.coll=(Rectangle){
+        .height=20,
+        .width=20,
+        .x=obj.pos.x,
+        .y=obj.pos.y
+    };
+    obj.hooked=false;
+
+    return obj;
+}
+
+
 
 typedef struct Hook
 {
@@ -57,6 +82,37 @@ void DrawHook(Player *p) {
 
 void DrawPlayer(Player *p) {
     DrawRectangleV(p->pos, p->size, RED); 
+}
+
+void DrawObject(Object *obj) {
+    DrawRectangleV(obj->pos, (Vector2){20, 20}, BLACK);
+}
+
+void UpdateObject(Object *obj, Player *p) {
+    if(CheckCollisionRecs(obj->coll, p->hook.coll)) {
+        obj->hooked = true;
+    }
+
+    // If hooked go to hook loc
+    Vector2 start = obj->pos;
+    Vector2 end = initial;
+    Vector2 dir_to_player = Vector2Normalize(Vector2Subtract(end, start));
+
+    if(obj->hooked) {
+        Rectangle hook_rec = (Rectangle){
+            .height=10,
+            .width=10,
+            .x=end.x,
+            .y=end.y
+        };
+        obj->pos = Vector2Subtract(obj->pos, Vector2Negate(dir_to_player));
+        if(CheckCollisionRecs(obj->coll, hook_rec)){
+            obj->hooked = false;
+        }
+    }
+
+    obj->coll.x = obj->pos.x;
+    obj->coll.y = obj->pos.y; 
 }
 
 void UpdateHook(Player *p) {
@@ -154,19 +210,26 @@ void UpdatePlayer(Player *p) {
     
 }
 
+Vector2 GetPlayerPos(Player *player) {
+    return player->pos;
+}
+
 int main(){
     InitWindow(800, 600, "Test Linking");
     SetTargetFPS(60);
 
     Player player = InitPlayer();
+    Object obj = CreateObject();
 
     while (!WindowShouldClose())
     {
         UpdatePlayer(&player);
+        UpdateObject(&obj, &player);
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
         DrawPlayer(&player);
+        DrawObject(&obj);
 
         EndDrawing();
 
